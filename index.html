@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdmissionIQ — AI University Application Assistant for African Students</title>
+  <meta name="description" content="Your AI-powered guide to international university and scholarship applications. Built for African students.">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     AUTH SECTION
+══════════════════════════════════════ -->
+<div id="authSection" style="display:flex;min-height:100vh">
+
+  <!-- LOGIN PANEL -->
+  <div class="auth-page" id="panel-login" class="auth-panel" style="width:100%">
+    <div class="auth-left">
+      <div class="auth-form-wrap">
+        <a href="#" class="logo">
+          <div class="logo-icon">🎓</div>
+          <span class="logo-text">Admission<span>IQ</span></span>
+        </a>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-sub">Sign in to continue your application journey</p>
+        <div id="loginAlert" class="alert"></div>
+        <form onsubmit="login(event)">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+          </div>
+          <div style="text-align:right;margin-bottom:20px">
+            <a href="#" onclick="showAuth('reset')" style="font-size:0.85rem;color:var(--accent);text-decoration:none">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+        </form>
+        <div class="auth-link">
+          Don't have an account? <a href="#" onclick="showAuth('register')">Create one free →</a>
+        </div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-hero">
+        <h2>Your Dream University Awaits</h2>
+        <p>AdmissionIQ helps African students navigate the complex world of international university applications with AI-powered tools and expert guidance.</p>
+        <div class="auth-stats">
+          <div class="auth-stat"><span class="num">500+</span><span class="label">Universities</span></div>
+          <div class="auth-stat"><span class="num">200+</span><span class="label">Scholarships</span></div>
+          <div class="auth-stat"><span class="num">54</span><span class="label">Countries</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER PANEL -->
+  <div class="auth-page auth-panel" id="panel-register" style="width:100%;display:none">
+    <div class="auth-left">
+      <div class="auth-form-wrap">
+        <a href="#" class="logo">
+          <div class="logo-icon">🎓</div>
+          <span class="logo-text">Admission<span>IQ</span></span>
+        </a>
+        <h1 class="auth-title">Create your account</h1>
+        <p class="auth-sub">Start your journey to international education</p>
+        <div id="registerAlert" class="alert"></div>
+        <form onsubmit="register(event)">
+          <div class="form-group"><label>Full Name</label><input id="regName" placeholder="e.g. Amara Diallo" required></div>
+          <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com" required></div>
+          <div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="At least 6 characters" required minlength="6"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Country</label>
+              <select id="regCountry">
+                <option value="">Select country</option>
+                <option>Rwanda</option><option>Kenya</option><option>Uganda</option>
+                <option>Tanzania</option><option>Nigeria</option><option>Ghana</option>
+                <option>South Africa</option><option>Ethiopia</option><option>Senegal</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Intended Degree</label>
+              <select id="regDegree">
+                <option value="">Select degree</option>
+                <option>Bachelor's</option><option>Master's</option>
+                <option>PhD</option><option>Certificate</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="registerBtn">Create Account</button>
+        </form>
+        <div class="auth-link">Already have an account? <a href="#" onclick="showAuth('login')">Sign in →</a></div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-hero">
+        <h2>Join 10,000+ African Students</h2>
+        <p>From Kigali to Lagos to Accra — students across Africa are using AdmissionIQ to unlock global educational opportunities.</p>
+        <div class="auth-stats">
+          <div class="auth-stat"><span class="num">AI</span><span class="label">Essay Writer</span></div>
+          <div class="auth-stat"><span class="num">AI</span><span class="label">CV Builder</span></div>
+          <div class="auth-stat"><span class="num">FREE</span><span class="label">To Start</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESET PANEL -->
+  <div class="auth-page auth-panel" id="panel-reset" style="width:100%;display:none">
+    <div class="auth-left">
+      <div class="auth-form-wrap">
+        <a href="#" class="logo"><div class="logo-icon">🎓</div><span class="logo-text">Admission<span>IQ</span></span></a>
+        <h1 class="auth-title">Reset Password</h1>
+        <p class="auth-sub">Enter your email and we'll send a reset link</p>
+        <div id="resetAlert" class="alert"></div>
+        <form onsubmit="resetPassword(event)">
+          <div class="form-group"><label>Email Address</label><input type="email" id="resetEmail" placeholder="you@example.com" required></div>
+          <button type="submit" class="btn btn-primary">Send Reset Link</button>
+        </form>
+        <div class="auth-link"><a href="#" onclick="showAuth('login')">← Back to Sign In</a></div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-hero"><h2>We've got you covered</h2><p>Password reset is quick and easy. Check your email for the reset link.</p></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════
+     APP SECTION
+══════════════════════════════════════ -->
+<div id="appSection" style="display:none" class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="#" class="logo" onclick="navigateTo('dashboard')">
+        <div class="logo-icon">🎓</div>
+        <span class="logo-text">Admission<span>IQ</span></span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" data-nav="dashboard" onclick="navigateTo('dashboard')">
+        <span class="nav-icon">🏠</span> Dashboard
+      </button>
+      <button class="nav-item" data-nav="universities" onclick="navigateTo('universities')">
+        <span class="nav-icon">🏛</span> Universities
+      </button>
+      <button class="nav-item" data-nav="scholarships" onclick="navigateTo('scholarships')">
+        <span class="nav-icon">🏆</span> Scholarships
+      </button>
+      <button class="nav-item" data-nav="tracker" onclick="navigateTo('tracker')">
+        <span class="nav-icon">📋</span> Application Tracker
+        <span class="nav-badge" id="appCountBadge">0</span>
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Tools</div>
+      <button class="nav-item" data-nav="documents" onclick="navigateTo('documents')">
+        <span class="nav-icon">📁</span> Documents
+      </button>
+      <button class="nav-item" data-nav="ai" onclick="navigateTo('ai')">
+        <span class="nav-icon">🤖</span> AI Tools
+        <span class="nav-badge" style="background:var(--accent-2)">NEW</span>
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Account</div>
+      <button class="nav-item" data-nav="profile" onclick="navigateTo('profile')">
+        <span class="nav-icon">👤</span> Profile
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-card" onclick="navigateTo('profile')">
+        <div class="avatar user-avatar-initials">U</div>
+        <div class="user-info">
+          <div class="name user-display-name">Loading...</div>
+          <div class="email-text user-display-email"></div>
+        </div>
+      </div>
+      <button class="nav-item" onclick="logout()" style="margin-top:4px;color:var(--danger)">
+        <span class="nav-icon">🚪</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <button class="icon-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" title="Toggle sidebar">☰</button>
+      <h1 class="header-title" id="headerTitle">Dashboard</h1>
+    </div>
+    <div class="header-right">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="Search universities, scholarships...">
+      </div>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+      <div class="avatar user-avatar-initials" style="cursor:pointer" onclick="navigateTo('profile')">U</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="welcome-banner">
+        <div class="welcome-title">Good day, <span id="welcomeName">Student</span>! 👋</div>
+        <p class="welcome-sub">Your AI admissions counselor is ready. Explore universities, save scholarships, and track your applications — all in one place.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-primary" style="width:auto" onclick="navigateTo('universities')">🏛 Explore Universities</button>
+          <button class="btn btn-secondary" onclick="navigateTo('scholarships')">🏆 Find Scholarships</button>
+          <button class="btn btn-ghost" onclick="navigateTo('ai')">🤖 AI Tools</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card" style="--accent-color:var(--accent)">
+          <div class="stat-label">Total Applications</div>
+          <div class="stat-value" id="statApps">0</div>
+          <div class="stat-change">📋 Tracked applications</div>
+          <div class="stat-icon">📋</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-2)">
+          <div class="stat-label">Saved Universities</div>
+          <div class="stat-value" id="statSavedUnis">0</div>
+          <div class="stat-change">🏛 Your shortlist</div>
+          <div class="stat-icon">🏛</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-3)">
+          <div class="stat-label">Saved Scholarships</div>
+          <div class="stat-value" id="statSavedSchols">0</div>
+          <div class="stat-change">💰 Funding options</div>
+          <div class="stat-icon">🏆</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-4)">
+          <div class="stat-label">Universities Available</div>
+          <div class="stat-value">500+</div>
+          <div class="stat-change">🌍 Across 40+ countries</div>
+          <div class="stat-icon">🌍</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap:20px">
+        <div class="card">
+          <h3 style="font-family:'Sora',sans-serif;margin-bottom:20px;font-size:1rem">📅 Upcoming Deadlines</h3>
+          <div id="deadlineList"><div style="color:var(--text-muted);font-size:0.88rem">Loading...</div></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:16px;width:100%" onclick="openAddAppModal();navigateTo('tracker')">+ Add Application</button>
+        </div>
+        <div class="card">
+          <h3 style="font-family:'Sora',sans-serif;margin-bottom:20px;font-size:1rem">⚡ Recent Activity</h3>
+          <div class="timeline" id="activityList"><div style="color:var(--text-muted);font-size:0.88rem">Loading...</div></div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px" class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <h3 style="font-family:'Sora',sans-serif;font-size:1rem">🔥 Featured Scholarships</h3>
+          <button class="btn btn-ghost btn-sm" onclick="navigateTo('scholarships')">View all →</button>
+        </div>
+        <div class="grid-3" style="gap:14px">
+          <div class="scholar-card">
+            <div style="font-size:1.4rem;margin-bottom:10px">🇬🇧</div>
+            <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px">Chevening Scholarship</div>
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:10px">UK Government • Full Scholarship</div>
+            <span class="tag tag-green">Full Funding</span>
+          </div>
+          <div class="scholar-card">
+            <div style="font-size:1.4rem;margin-bottom:10px">🌍</div>
+            <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px">MasterCard Foundation</div>
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:10px">African students, undergraduate</div>
+            <span class="tag tag-green">Full Funding</span>
+          </div>
+          <div class="scholar-card">
+            <div style="font-size:1.4rem;margin-bottom:10px">🇩🇪</div>
+            <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px">DAAD Scholarship</div>
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:10px">German Academic Exchange</div>
+            <span class="tag tag-orange">Partial Funding</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── UNIVERSITIES ── -->
+    <div class="page" id="page-universities">
+      <div class="section-header">
+        <div><h2 class="section-title">🏛 University Explorer</h2><p class="section-sub">Discover universities that match your goals</p></div>
+        <button class="btn btn-primary" onclick="openAddAppModal()">+ Track Application</button>
+      </div>
+
+      <div class="filters">
+        <div class="search-input-wrap">
+          <span>🔍</span>
+          <input id="uniSearch" type="text" placeholder="Search universities..." oninput="filterUniversities()">
+        </div>
+        <select class="filter-select" id="uniCountryFilter" onchange="filterUniversities()">
+          <option value="">All Countries</option>
+          <option>South Africa</option><option>Kenya</option><option>Uganda</option>
+          <option>Ghana</option><option>Nigeria</option><option>Rwanda</option>
+          <option>United Kingdom</option><option>Netherlands</option><option>Canada</option><option>Egypt</option>
+        </select>
+        <select class="filter-select" id="uniTuitionFilter" onchange="filterUniversities()">
+          <option value="">Any Tuition</option>
+          <option value="0-2000">Under $2,000</option>
+          <option value="2000-5000">$2,000 – $5,000</option>
+          <option value="5000-15000">$5,000 – $15,000</option>
+          <option value="15000-100000">$15,000+</option>
+        </select>
+        <select class="filter-select" id="uniDegreeFilter" onchange="filterUniversities()">
+          <option value="">All Degrees</option>
+          <option value="BSc">BSc</option><option value="BA">BA</option>
+          <option value="MBA">MBA</option><option value="PhD">PhD</option>
+          <option value="Engineering">Engineering</option><option value="Medicine">Medicine</option>
+        </select>
+      </div>
+
+      <div class="grid-auto" id="uniGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">Loading universities...</div>
+      </div>
+    </div>
+
+    <!-- ── SCHOLARSHIPS ── -->
+    <div class="page" id="page-scholarships">
+      <div class="section-header">
+        <div><h2 class="section-title">🏆 Scholarship Explorer</h2><p class="section-sub">Find funding for your international education</p></div>
+      </div>
+
+      <div class="filters">
+        <div class="search-input-wrap">
+          <span>🔍</span>
+          <input id="scholSearch" type="text" placeholder="Search scholarships..." oninput="filterScholarships()">
+        </div>
+        <select class="filter-select" id="scholTypeFilter" onchange="filterScholarships()">
+          <option value="">All Types</option>
+          <option value="Full">Full Scholarship</option>
+          <option value="Partial">Partial Scholarship</option>
+        </select>
+        <select class="filter-select" id="scholCountryFilter" onchange="filterScholarships()">
+          <option value="">All Countries</option>
+          <option>United Kingdom</option><option>Germany</option><option>Netherlands</option>
+          <option>USA</option><option>Europe</option><option>Africa</option><option>Various</option>
+        </select>
+      </div>
+
+      <div class="grid-auto" id="scholarGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">Loading scholarships...</div>
+      </div>
+    </div>
+
+    <!-- ── TRACKER ── -->
+    <div class="page" id="page-tracker">
+      <div class="section-header">
+        <div><h2 class="section-title">📋 Application Tracker</h2><p class="section-sub">Track every step of your applications</p></div>
+        <button class="btn btn-primary" onclick="openAddAppModal()">+ New Application</button>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+        <span class="app-status status-researching">🔍 Researching</span>
+        <span class="app-status status-draft">✏️ Draft</span>
+        <span class="app-status status-in-progress">⚙️ In Progress</span>
+        <span class="app-status status-submitted">📤 Submitted</span>
+        <span class="app-status status-interview">💬 Interview</span>
+        <span class="app-status status-accepted">🎉 Accepted</span>
+        <span class="app-status status-rejected">❌ Rejected</span>
+      </div>
+
+      <div class="tracker-grid" id="trackerGrid">
+        <div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1">Loading applications...</div>
+      </div>
+    </div>
+
+    <!-- ── DOCUMENTS ── -->
+    <div class="page" id="page-documents">
+      <div class="section-header">
+        <div><h2 class="section-title">📁 Documents</h2><p class="section-sub">Upload and manage your application documents</p></div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;background:rgba(99,179,237,0.05);border-color:rgba(99,179,237,0.2)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:1.5rem">💡</span>
+          <div>
+            <div style="font-weight:600;margin-bottom:4px">Secure Document Storage</div>
+            <div style="font-size:0.88rem;color:var(--text-secondary)">All documents are securely stored in Supabase Storage. Max file size: 10MB. Supported formats: PDF, DOC, DOCX, JPG, PNG.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="docs-grid" id="docsGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">Loading documents...</div>
+      </div>
+    </div>
+
+    <!-- ── AI TOOLS ── -->
+    <div class="page" id="page-ai">
+      <div class="section-header">
+        <div><h2 class="section-title">🤖 AI Tools</h2><p class="section-sub">AI-powered tools to supercharge your applications</p></div>
+      </div>
+
+      <div class="grid-2" style="gap:20px">
+
+        <!-- CV Builder -->
+        <div class="ai-tool-card">
+          <div class="ai-tool-icon" style="background:rgba(99,179,237,0.15)">📄</div>
+          <div class="ai-tool-title">AI CV Builder</div>
+          <div class="ai-tool-desc">Generate a professional academic CV tailored for international university applications.</div>
+          <div class="form-group"><label>Full Name</label><input id="cvName" placeholder="Your full name"></div>
+          <div class="form-group"><label>Education</label><input id="cvEducation" placeholder="e.g. BSc Computer Science, UR, 2023"></div>
+          <div class="form-group"><label>Skills (comma-separated)</label><input id="cvSkills" placeholder="Python, Research, Leadership, French"></div>
+          <div class="form-group"><label>Experience</label><textarea id="cvExperience" rows="2" placeholder="Research assistant, internships..."></textarea></div>
+          <div class="form-group"><label>Projects</label><input id="cvProjects" placeholder="Key academic or personal projects"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1" onclick="generateCV()">✨ Generate CV</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyOutput('cvOutput')">📋 Copy</button>
+          </div>
+          <div class="ai-loading" id="cvLoading" style="display:none"><div class="spinner"></div>Generating your CV...</div>
+          <div class="ai-output" id="cvOutput"></div>
+        </div>
+
+        <!-- Personal Statement -->
+        <div class="ai-tool-card">
+          <div class="ai-tool-icon" style="background:rgba(159,122,234,0.15)">📝</div>
+          <div class="ai-tool-title">AI Personal Statement</div>
+          <div class="ai-tool-desc">Craft a compelling personal statement for your university application.</div>
+          <div class="form-group"><label>Course / Program</label><input id="psCourse" placeholder="e.g. MSc Data Science"></div>
+          <div class="form-group"><label>University</label><input id="psUni" placeholder="e.g. University of Edinburgh"></div>
+          <div class="form-group"><label>Key Achievements</label><textarea id="psAchievements" rows="2" placeholder="Awards, research, projects..."></textarea></div>
+          <div class="form-group"><label>Career Goals</label><textarea id="psGoals" rows="2" placeholder="What do you want to achieve?"></textarea></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1;background:var(--gradient-1)" onclick="generatePS()">✨ Generate Statement</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyOutput('psOutput')">📋 Copy</button>
+          </div>
+          <div class="ai-loading" id="psLoading" style="display:none"><div class="spinner"></div>Writing your statement...</div>
+          <div class="ai-output" id="psOutput"></div>
+        </div>
+
+        <!-- Motivation Letter -->
+        <div class="ai-tool-card">
+          <div class="ai-tool-icon" style="background:rgba(104,211,145,0.15)">💌</div>
+          <div class="ai-tool-title">AI Motivation Letter</div>
+          <div class="ai-tool-desc">Write a powerful scholarship motivation letter that stands out.</div>
+          <div class="form-group"><label>Scholarship Name</label><input id="mlScholarship" placeholder="e.g. Chevening Scholarship"></div>
+          <div class="form-group"><label>Your Background</label><textarea id="mlBackground" rows="2" placeholder="Education, work, community involvement..."></textarea></div>
+          <div class="form-group"><label>Career Goals</label><textarea id="mlGoals" rows="2" placeholder="How will this scholarship help you?"></textarea></div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1;background:linear-gradient(135deg,#68d391,#63b3ed)" onclick="generateML()">✨ Generate Letter</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyOutput('mlOutput')">📋 Copy</button>
+          </div>
+          <div class="ai-loading" id="mlLoading" style="display:none"><div class="spinner"></div>Crafting your letter...</div>
+          <div class="ai-output" id="mlOutput"></div>
+        </div>
+
+        <!-- University Matcher -->
+        <div class="ai-tool-card">
+          <div class="ai-tool-icon" style="background:rgba(246,173,85,0.15)">🎯</div>
+          <div class="ai-tool-title">AI University Matcher</div>
+          <div class="ai-tool-desc">Find the best universities based on your grades, budget, and preferences.</div>
+          <div class="form-row">
+            <div class="form-group"><label>GPA / Average Grade (%)</label><input type="number" id="matchGrades" placeholder="e.g. 85" min="0" max="100"></div>
+            <div class="form-group"><label>Annual Budget (USD)</label><input type="number" id="matchBudget" placeholder="e.g. 10000"></div>
+          </div>
+          <div class="form-group"><label>Program of Interest</label><input id="matchProgram" placeholder="e.g. Engineering, Medicine, Business"></div>
+          <div class="form-group"><label>Preferred Countries</label><input id="matchCountries" placeholder="e.g. Kenya, UK, Germany (or leave blank)"></div>
+          <button class="btn btn-primary" style="background:linear-gradient(135deg,#f6ad55,#ed8936)" onclick="matchUniversities()">🎯 Find My Match</button>
+          <div class="ai-output show" id="matchOutput" style="margin-top:16px;min-height:60px;display:block;background:var(--bg-primary)">
+            <span style="color:var(--text-muted);font-size:0.85rem">Fill in your details and click "Find My Match" to see recommended universities.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PROFILE ── -->
+    <div class="page" id="page-profile">
+      <div class="section-header">
+        <div><h2 class="section-title">👤 My Profile</h2><p class="section-sub">Manage your account and preferences</p></div>
+      </div>
+
+      <div class="profile-header">
+        <div class="profile-avatar user-avatar-initials" style="font-size:2rem">U</div>
+        <div>
+          <div class="profile-name user-display-name">Loading...</div>
+          <div class="profile-email user-display-email"></div>
+          <div class="profile-plan">⭐ <span class="user-plan-badge">FREE</span> Plan</div>
+        </div>
+        <div style="margin-left:auto">
+          <button class="btn btn-secondary" onclick="upgradePrompt()">⚡ Upgrade to Pro</button>
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap:20px">
+        <div class="card">
+          <h3 style="font-family:'Sora',sans-serif;font-size:1rem;margin-bottom:20px">Personal Information</h3>
+          <form onsubmit="updateProfile(event)">
+            <div class="form-group"><label>Full Name</label><input id="profileName" placeholder="Your full name"></div>
+            <div class="form-group"><label>Email</label><input id="profileEmail" type="email" disabled style="opacity:0.6"></div>
+            <div class="form-group">
+              <label>Country</label>
+              <select id="profileCountry">
+                <option value="">Select country</option>
+                <option>Rwanda</option><option>Kenya</option><option>Uganda</option>
+                <option>Tanzania</option><option>Nigeria</option><option>Ghana</option>
+                <option>South Africa</option><option>Ethiopia</option><option>Senegal</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Intended Degree</label>
+              <select id="profileDegree">
+                <option value="">Select degree</option>
+                <option>Bachelor's</option><option>Master's</option><option>PhD</option><option>Certificate</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Preferred Countries (for study)</label><input id="profilePreferredCountries" placeholder="e.g. UK, Germany, Canada"></div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <h3 style="font-family:'Sora',sans-serif;font-size:1rem;margin-bottom:16px">📊 Your Stats</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div style="text-align:center;padding:16px;background:var(--bg-primary);border-radius:var(--radius-sm)">
+                <div style="font-size:1.8rem;font-weight:800;font-family:'Sora',sans-serif" id="profileStatApps">-</div>
+                <div style="font-size:0.8rem;color:var(--text-secondary)">Applications</div>
+              </div>
+              <div style="text-align:center;padding:16px;background:var(--bg-primary);border-radius:var(--radius-sm)">
+                <div style="font-size:1.8rem;font-weight:800;font-family:'Sora',sans-serif" id="profileStatSaved">-</div>
+                <div style="font-size:0.8rem;color:var(--text-secondary)">Saved</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="font-family:'Sora',sans-serif;font-size:1rem;margin-bottom:16px">⚡ Upgrade to Pro</h3>
+            <div style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.7">
+              Unlock unlimited AI tools, priority support, and advanced application tracking.
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:0.88rem">✅ Unlimited AI CV Builder</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:0.88rem">✅ Unlimited Personal Statements</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:0.88rem">✅ Unlimited Motivation Letters</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.88rem">✅ Priority Customer Support</div>
+            </div>
+            <div style="font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:12px">
+              $9<span style="font-size:0.9rem;font-weight:400;color:var(--text-secondary)">/month</span>
+            </div>
+            <button class="btn btn-primary" onclick="upgradePrompt()">⚡ Upgrade Now</button>
+          </div>
+
+          <div class="card">
+            <h3 style="font-family:'Sora',sans-serif;font-size:1rem;margin-bottom:16px;color:var(--danger)">⚠️ Danger Zone</h3>
+            <button class="btn btn-danger" onclick="logout()">🚪 Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="mainModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Details</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ── TOAST CONTAINER ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── SCRIPTS ── -->
+<script src="js/app.js"></script>
+<script src="js/data.js"></script>
+<script src="js/ai.js"></script>
+
+<script>
+// Extra UI helpers
+function upgradePrompt() {
+  document.getElementById('modalTitle').textContent = '⚡ Upgrade to Pro';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:3rem;margin-bottom:16px">🚀</div>
+      <h3 style="font-family:'Sora',sans-serif;font-size:1.3rem;margin-bottom:12px">AdmissionIQ Pro</h3>
+      <div style="font-size:2rem;font-weight:800;font-family:'Sora',sans-serif;margin-bottom:4px">$9<span style="font-size:1rem;font-weight:400;color:var(--text-secondary)">/month</span></div>
+      <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:24px">or $79/year (save 27%)</div>
+      <div style="text-align:left;background:var(--bg-primary);border-radius:var(--radius-sm);padding:20px;margin-bottom:24px">
+        ${['Unlimited AI CV Builder','Unlimited Personal Statements','Unlimited Motivation Letters','AI University Matcher','Priority Support','Early Access to New Features'].map(f => `<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;font-size:0.9rem"><span style="color:var(--success)">✅</span>${f}</div>`).join('')}
+      </div>
+      <button class="btn btn-primary" onclick="showToast('Payment integration coming soon! Contact us at hello@admissioniq.africa','info');closeModal()">Continue to Payment</button>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-top:12px">Secure payment · Cancel anytime</div>
+    </div>
+  `;
+  openModal();
+}
+
+// Sync profile stats
+async function syncProfileStats() {
+  if (!currentUser) return;
+  const [a, s] = await Promise.all([
+    sb.from('applications').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
+    sb.from('saved_universities').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
+  ]);
+  const ps = document.getElementById('profileStatApps');
+  const ss = document.getElementById('profileStatSaved');
+  if (ps) ps.textContent = a.count || 0;
+  if (ss) ss.textContent = s.count || 0;
+}
+
+// Update nav badge
+async function updateNavBadge() {
+  if (!currentUser) return;
+  const { count } = await sb.from('applications').select('id', { count: 'exact' }).eq('user_id', currentUser.id);
+  const badge = document.getElementById('appCountBadge');
+  if (badge) badge.textContent = count || 0;
+}
+
+// Override navigateTo to also sync
+const _nav = navigateTo;
+window.navigateTo = function(page) {
+  _nav(page);
+  if (page === 'profile') syncProfileStats();
+  updateNavBadge();
+};
+</script>
+
+</body>
+</html>
